@@ -36,12 +36,25 @@ public class HelloTracy {
     	this.delay = delay;
     }
 
-	private void outer() throws InterruptedException {
-		
+    private int randomStatus() {
+    	long random = new Double(Math.random() * 100).longValue();
+    	int status = 200;
+    	if      ( random < 79 )	{ status = 200; }//  80%  200: OK
+    	else if ( random > 99 ) { status = 500; }//   1%  202: Accepted
+    	else if ( random > 97 ) { status = 429; }//   1%  307: Temp redirect
+    	else if ( random > 87 ) { status = 404; }//   2%  400: Bad request
+    	else if ( random > 84 ) { status = 401; }//   3%  401: Unauthorized
+    	else if ( random > 82 ) { status = 400; }//  10%  404: not found
+    	else if ( random > 81 ) { status = 307; }//   2%  429: Too many requests
+    	else if ( random > 80 ) { status = 201; }//   1%  500: Internal server error
+    	return status;
+    }
+    
+	private void outer() throws InterruptedException {		
     	for (;;)	{
-    		
     		Tracy.setContext(null, null, COMPONENT);
     		Tracy.before(OUTER);
+    		Tracy.annotate("status", randomStatus());
     		inner();
     		Tracy.after(OUTER);
     		for (String event : Tracy.getEventsAsJson())	{
@@ -50,7 +63,6 @@ public class HelloTracy {
     		Thread.sleep(delay);
     		Tracy.clearContext();
     	}
-		
 	}
     
 	private void inner() throws InterruptedException {
